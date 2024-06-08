@@ -1284,10 +1284,10 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
         }
     
         // CMD+SHIFT+R for toggling voice mode
-        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'V') {
-          event.preventDefault();
-          voice();
-        }
+        // if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'V') {
+        //   event.preventDefault();
+        //   voice();
+        // }
 
         // CMD+SHIFT+C for copying the latest chat message
     if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === 'C') {
@@ -1354,8 +1354,8 @@ document.getElementById('open-router-model-cohere-command-r-plus').addEventListe
   });
 
       const chatBox = document.getElementById('chat-box');
-      const voiceButton = document.getElementById('voice-button');
-      voiceButton.addEventListener('click', voice);
+      // const voiceButton = document.getElementById('voice-button');
+      // voiceButton.addEventListener('click', voice);
       document.getElementById('export-button').addEventListener('click', exportChatHistory);
       
       // Existing event listener for messageInput keypress
