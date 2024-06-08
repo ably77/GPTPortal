@@ -1,4 +1,5 @@
 .env
 .DS_Store
+notes.md
 public/instructions.md
 public/geminiMessage.txt

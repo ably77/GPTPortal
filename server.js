@@ -4,7 +4,8 @@ let isShuttingDown = false;
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-const basicAuth = require('express-basic-auth');
+// Commenting out the basicAuth import
+// const basicAuth = require('express-basic-auth');
 const fs = require('fs');
 const { marked } = require('marked');
 const app = express();
@@ -33,9 +34,11 @@ const googleGenerativeAI = require("@google/generative-ai");
 const HarmBlockThreshold = googleGenerativeAI.HarmBlockThreshold;
 const HarmCategory = googleGenerativeAI.HarmCategory;
 
+// Commenting out Basic Authentication related code
 // Authenticates your login
 
 // Basic Authentication users
+/*
 const username = process.env.USER_USERNAME;
 const password = process.env.USER_PASSWORD;
 
@@ -73,6 +76,7 @@ if (username && password) {
   });
 }
 
+*/
 
 app.get('/setup', (req, res) => {
   res.sendFile('setup.html', { root: 'public' });
@@ -198,14 +202,17 @@ app.post('/transcribe', upload.single('audio'), async (req, res) => {
     formData.append('file', fs.createReadStream(uploadedFilePath), req.file.filename);
     formData.append('model', 'whisper-1');
 
+    // Determine which API key to use
+    const openaiApiKey = process.env.OPENAI_API_KEY;
+    
     // API request
     const transcriptionResponse = await axios.post(
-      'https://api.openai.com/v1/audio/transcriptions',
+      `${process.env.OPENAI_ENDPOINT.replace('/chat/completions', '/audio/transcriptions')}`,
       formData,
       { 
         headers: { 
           ...formData.getHeaders(),
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` 
+          'Authorization': `Bearer ${openaiApiKey}` 
         } 
       }
     );
@@ -238,7 +245,7 @@ app.post('/tts', async (req, res) => {
 
     // Call the OpenAI TTS API
     const ttsResponse = await axios.post(
-      'https://api.openai.com/v1/audio/speech',
+      `${process.env.OPENAI_ENDPOINT.replace('/chat/completions', '/audio/speech')}`,
       { model: "tts-1-hd", voice: "echo", input: text },
       { headers: { 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` }, responseType: 'arraybuffer' }
     );
@@ -264,18 +271,21 @@ app.post('/generate-image', async (req, res) => {
   
   try {
     // Call to DALL·E API with the prompt
-    const dalResponse = await axios.post('https://api.openai.com/v1/images/generations', {
-      prompt: prompt,
-      model: "dall-e-3",
-      n: 1,
-      quality: 'hd',
-      response_format: 'url',
-      size: '1024x1024'
-    }, {
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+    const dalResponse = await axios.post(
+      `${process.env.OPENAI_ENDPOINT.replace('/chat/completions', '/images/generations')}`,
+      {
+        prompt: prompt,
+        model: "dall-e-3",
+        n: 1,
+        quality: 'hd',
+        response_format: 'url',
+        size: '1024x1024'
+      }, {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        }
       }
-    });
+    );
 
     // Extract the image URL from the response
     const imageUrl = dalResponse.data.data[0].url;
@@ -1220,7 +1230,7 @@ if (modelID === 'gpt-4') {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         // 'OpenAI-Organization': 'process.env.ORGANIZATION' // Uncomment if using an organization ID
       };
-      apiUrl = 'https://api.openai.com/v1/chat/completions';
+      apiUrl = process.env.OPENAI_ENDPOINT;
     } else if (modelID.startsWith('llama') || modelID.startsWith('gemma') || modelID === 'mixtral-8x7b-32768') {
       conversationHistory.push(user_input);
       headers = {
@@ -1251,13 +1261,18 @@ if (modelID === 'gpt-4') {
         system: systemMessage,
         messages: claudeHistory,
       };
+
+      const claudeApiKey = process.env.CLAUDE_API_KEY;
+      const managedClaudeApiKey = process.env.MANAGED_CLAUDE_API_KEY;
+
       headers = {
-        'x-api-key': `${process.env.CLAUDE_API_KEY}`,
+        'api-key':  managedClaudeApiKey,
+        'x-api-key': claudeApiKey,
         'content-type': 'application/json',
         'anthropic-version': '2023-06-01',
         // Add any Mistral-specific headers here if necessary
       };
-      apiUrl = 'https://api.anthropic.com/v1/messages';
+      apiUrl = process.env.ANTHROPIC_ENDPOINT || 'https://api.anthropic.com/v1/messages';
     }
 
     // Log the data payload just before sending it to the chosen API

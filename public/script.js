@@ -795,7 +795,7 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
         console.log("New display: ", options.style.display); // Debugging line
       }
     }
-    
+  /*  
     // Toggle Assistants Mode on clicking the custom-select div
   document.getElementById('mode-selector').addEventListener('click', () => {
     // Toggle assistantsMode
@@ -816,6 +816,7 @@ document.querySelector('.custom-select').addEventListener('click', toggleDropdow
 
     console.log("Assistants Mode:", assistantsMode); // For debugging
   });
+  */
 
 
     function determineEndpoint(modelID) {
